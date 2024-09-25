@@ -29,15 +29,21 @@ func (u *userController) GetUserList(ctx *gin.Context) {
 	appC := responsehelper.Gin{
 		C: ctx,
 	}
-	// handle request input from client
-	username := appC.C.Query("username")
+
+	// handle request from client
+	input := &dto.FindUsersRequestDTO{}
+	err := appC.C.ShouldBindQuery(input)
+	if err != nil {
+		appC.Response(http.StatusBadRequest, responsehelper.ERROR, nil)
+		return
+	}
 
 	// call usecase handle business
 	data, err := u.userUseCase.FindUsers(&dto.FindUsersRequestDTO{
-		Username: username,
+		Username: input.Username,
 	})
 
-	// handle response output into client
+	// handle response into client
 	if err != nil {
 		appC.Response(http.StatusBadRequest, responsehelper.ERROR, nil)
 		return

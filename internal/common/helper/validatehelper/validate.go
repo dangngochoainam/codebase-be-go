@@ -13,7 +13,7 @@ type (
 )
 
 func NewValidate() ValidateHelper {
-	validate := validator.New()
+	validate := validator.New(validator.WithRequiredStructEnabled())
 	return &validateHelper{
 		validate: validate,
 	}

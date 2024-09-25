@@ -1,6 +1,8 @@
 package router
 
 import (
+	"example/internal/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,6 +16,10 @@ func InitRouter() *gin.Engine {
 			"message": "Hello Gin!",
 		})
 	})
+
+	router.Use(middleware.SetTraceIdMiddleware())
+	router.Use(middleware.SetTimeMsMiddleware())
+
 	// router.POST("/auth", api.GetAuth)
 	// router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	// router.POST("/upload", api.UploadImage)

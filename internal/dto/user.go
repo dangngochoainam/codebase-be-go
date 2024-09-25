@@ -4,10 +4,12 @@ import "example/entity"
 
 // Request - Response UseCase
 type FindUsersRequestDTO struct {
-	Username string
+	PagingRequestDTO
+	Username string `form:"userName"`
 }
 type FindUsersResponseDTO struct {
-	Users []*entity.User
+	*PagingResponse
+	List []*entity.User `json:"list"`
 }
 
 // Input - Output Repository

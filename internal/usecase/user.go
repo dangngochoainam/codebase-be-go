@@ -28,8 +28,16 @@ func (u *userUseCase) FindUsers(input *dto.FindUsersRequestDTO) (*dto.FindUsersR
 	if err != nil {
 		return nil, err
 	}
+
+	response := &dto.PagingResponse{
+		CurrentPage: 1,
+		TotalPages:  2,
+		TotalItems:  3,
+	}
 	result := &dto.FindUsersResponseDTO{
-		Users: users,
+		PagingResponse: response,
+		List: users,
+		// List: users,
 	}
 	return result, nil
 }
