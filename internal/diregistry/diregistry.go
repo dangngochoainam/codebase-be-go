@@ -17,7 +17,9 @@ const (
 	UserRepositoryDIName    string = "UserRepository"
 	ProductRepositoryDIName string = "ProductRepository"
 	UserUseCaseDIName       string = "UserUseCase"
+	ExampleUseCaseDIName    string = "ExampleUseCase"
 	UserControllerDIName    string = "UserController"
+	ExampleControllerDIName string = "ExampleController"
 )
 
 func BuildDIContainer() {
@@ -102,6 +104,15 @@ func initBuilder() {
 			Close: func(obj interface{}) error {
 				return nil
 			},
+		}, di.Def{
+			Name:  ExampleUseCaseDIName,
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				return usecase.NewExampleUseCase(), nil
+			},
+			Close: func(obj interface{}) error {
+				return nil
+			},
 		})
 		return arr
 	}
@@ -114,6 +125,16 @@ func initBuilder() {
 			Build: func(ctn di.Container) (interface{}, error) {
 				userUseCase := ctn.Get(UserUseCaseDIName).(usecase.UserUseCase)
 				return controller.NewUserController(userUseCase), nil
+			},
+			Close: func(obj interface{}) error {
+				return nil
+			},
+		}, di.Def{
+			Name:  ExampleControllerDIName,
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				exampleUseCase := ctn.Get(ExampleUseCaseDIName).(usecase.ExampleUseCase)
+				return controller.NewExampleController(exampleUseCase), nil
 			},
 			Close: func(obj interface{}) error {
 				return nil

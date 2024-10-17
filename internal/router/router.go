@@ -26,6 +26,7 @@ func InitRouter() *gin.Engine {
 
 	apiV1 := router.Group("/api/v1")
 	registerUserRouter(apiV1.Group("/users"))
+	registerExampleRouter(apiV1.Group("/example"))
 
 	return router
 }
