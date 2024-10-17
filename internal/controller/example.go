@@ -11,6 +11,7 @@ import (
 type (
 	ExampleController interface {
 		GoroutineTest(ctx *gin.Context)
+		MutexTest(ctx *gin.Context)
 	}
 
 	exampleController struct {
@@ -33,9 +34,14 @@ func (u *exampleController) GoroutineTest(ctx *gin.Context) {
 		fmt.Println("Error !!!")
 		fmt.Println(err)
 	}
-
 	fmt.Println("Data: ", data)
-
 	appC.Response(200, responsehelper.SUCCESS, data)
+}
 
+func (u *exampleController) MutexTest(ctx *gin.Context) {
+	appC := responsehelper.Gin{
+		C: ctx,
+	}
+	go u.exampleUseCase.MutexTest()
+	appC.Response(200, responsehelper.SUCCESS, "Ok")
 }

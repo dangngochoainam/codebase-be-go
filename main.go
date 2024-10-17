@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/robfig/cron/v3"
 )
 
 func init() {
@@ -19,6 +20,9 @@ func main() {
 	diregistry.BuildDIContainer()
 	cfg := diregistry.GetDependency(diregistry.ConfigDIName).(*config.Config)
 	gin.SetMode(cfg.Env)
+
+	c := diregistry.GetDependency(diregistry.CronSchedulerDIName).(*cron.Cron)
+	defer c.Stop()
 
 	routersInit := router.InitRouter()
 

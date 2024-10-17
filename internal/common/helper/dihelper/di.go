@@ -9,14 +9,15 @@ import (
 type DIBuilder func() []di.Def
 
 var (
-	buildOnce           sync.Once
-	builder             *di.Builder
-	container           di.Container
-	ConfigsBuilder      DIBuilder
-	HelpersBuilder      DIBuilder
-	UseCasesBuilder     DIBuilder
-	RepositoriesBuilder DIBuilder
-	ControllersBuilder  DIBuilder
+	buildOnce            sync.Once
+	builder              *di.Builder
+	container            di.Container
+	ConfigsBuilder       DIBuilder
+	HelpersBuilder       DIBuilder
+	UseCasesBuilder      DIBuilder
+	RepositoriesBuilder  DIBuilder
+	ControllersBuilder   DIBuilder
+	CronSchedulerBuilder DIBuilder
 )
 
 func BuildLibDIContainer() {
@@ -57,6 +58,11 @@ func doBuild() {
 	}
 
 	err = buildControllers()
+	if err != nil {
+		panic(err)
+	}
+
+	err = buildCronScheduler()
 	if err != nil {
 		panic(err)
 	}
@@ -120,6 +126,19 @@ func buildRepository() error {
 		RepositoriesBuilder = defaultBuilder
 	}
 	defs = RepositoriesBuilder()
+	err := builder.Add(defs...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func buildCronScheduler() error {
+	defs := []di.Def{}
+	if CronSchedulerBuilder == nil {
+		CronSchedulerBuilder = defaultBuilder
+	}
+	defs = CronSchedulerBuilder()
 	err := builder.Add(defs...)
 	if err != nil {
 		return err
