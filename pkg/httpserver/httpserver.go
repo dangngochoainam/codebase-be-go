@@ -1,4 +1,4 @@
-package main
+package httpserver
 
 import (
 	"example/config"
@@ -12,11 +12,7 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-func init() {
-	log.Println("Init application...")
-}
-
-func main() {
+func StartHTTPServer() {
 	diregistry.BuildDIContainer()
 	cfg := diregistry.GetDependency(diregistry.ConfigDIName).(*config.Config)
 	gin.SetMode(cfg.Env)
@@ -33,5 +29,8 @@ func main() {
 	}
 
 	log.Printf("[INFO] Start http server listening %s", port)
-	server.ListenAndServe()
+	err := server.ListenAndServe()
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
 }

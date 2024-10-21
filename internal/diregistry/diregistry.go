@@ -156,7 +156,7 @@ func initBuilder() {
 				exampleUseCase := ctn.Get(ExampleUseCaseDIName).(usecase.ExampleUseCase)
 				jobs := []*cronschedulerhelper.Job{
 					{
-						Spec: "@every 00h00m10s",
+						Spec: "@every 20h00m10s",
 						Cmd:  exampleUseCase.CronScheduler,
 					},
 				}
