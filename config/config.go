@@ -3,35 +3,56 @@ package config
 import "example/internal/common/helper/confighelper"
 
 var defaultConfig = []byte(`
-	app: go-example
-	env: test
-	http_address: 9999
+app: go-example
+env: dev
+mode: debug
+http_address: 9999
+database_postgres:
+  host: 0.0.0.0
+  port: 5434
+  username: root
+  password: Abc12345
+  database: test
+  schema: golangdb
+  use_tls: false
+  tls_mode: prefer
+  tls_rootca_cert_file:
+  tls_key_file:
+  tls_cert_file:
+  insecure_skip_verify: false
+  logging_enabled: false
+  use_logging_db: false
+  use_logging_file: false
+  auto_migration: false
+  max_open_conns: 10
+database_log:
+  host: 0.0.0.0
+  port: 5434
+  username: root
+  password: Abc12345
+  database: test
+  schema: logs
+  use_tls: false
+  tls_mode: prefer
+  tls_rootca_cert_file:
+  tls_key_file:
+  tls_cert_file:
+  insecure_skip_verify: false
+  logging_enabled: false
+  use_logging_db: false
+  use_logging_file: false
+  auto_migration: false
+  max_open_conns: 10
 `)
-
-// database_postgres:
-// 		host: 0.0.0.0
-// 		port: 5434
-// 		username: root
-// 		password: Abc12345
-// 		database: test
-// 		schema: golangdb
-// 		use_tls: false
-// 		tls_mode: prefer
-// 		tls_rootca_cert_file:
-// 		tls_key_file:
-// 		tls_cert_file:
-// 		insecure_skip_verify: false
-// 		logging_enabled: false
-// 		use_logging_db: false
-// 		auto_migration: false
-// 		max_open_conns: 10
 
 type (
 	Config struct {
 		App              string            `mapstructure:"app"`
 		Env              string            `mapstructure:"env"`
+		Mode             string            `mapstructure:"mode"`
 		HttpAddress      uint32            `mapstructure:"http_address"`
 		DatabasePostgres SqlDatabaseConfig `mapstructure:"database_postgres"`
+		DatabaseLog      SqlDatabaseConfig `mapstructure:"database_log"`
 	}
 
 	SqlDatabaseConfig struct {
@@ -54,6 +75,7 @@ type (
 		MaxOpenConns        int      `mapstructure:"max_open_conns"`
 		LoggingEnabled      bool     `mapstructure:"logging_enabled"`
 		UseLoggingDb        bool     `mapstructure:"use_logging_db"`
+		UseLoggingFile      bool     `mapstructure:"use_logging_file"`
 		AutoMigration       bool     `mapstructure:"auto_migration"`
 	}
 )

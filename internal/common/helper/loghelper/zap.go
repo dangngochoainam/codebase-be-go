@@ -54,7 +54,7 @@ func InitZap(app string, env string) error {
 	return nil
 }
 
-func InitZapWithSql(app string, env string, sqlOrmWriter io.Writer) {
+func InitZapWithSql(app string, env string, sqlOrmWriter io.Writer) error {
 	encoderConfig := zapcore.EncoderConfig{
 		MessageKey:   "message",
 		LevelKey:     "level",
@@ -81,7 +81,9 @@ func InitZapWithSql(app string, env string, sqlOrmWriter io.Writer) {
 	newLogger = newLogger.Named(app)
 	zap.ReplaceGlobals(newLogger)
 
-	Logger = &zapLogger{newLogger.Sugar(), newLogger}
+	DBLogger = &zapLogger{newLogger.Sugar(), newLogger}
+
+	return nil
 }
 
 func InitZapWithRotatingFile(app, env string) error {

@@ -8,7 +8,7 @@ import (
 )
 
 func Load(cfgMap any, defaultConfig []byte) error {
-	viper.SetConfigType("env")
+	viper.SetConfigType("yaml")
 	err := viper.ReadConfig(bytes.NewBuffer(defaultConfig))
 	if err != nil {
 		return err

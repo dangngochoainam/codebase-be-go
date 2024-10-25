@@ -12,6 +12,11 @@ type FindUsersResponseDTO struct {
 	List []*entity.User `json:"list"`
 }
 
+type CreateUserRequestDTO struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 // Input - Output Repository
 type FindUsersInput struct {
 	Username string
