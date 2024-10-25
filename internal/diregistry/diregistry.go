@@ -2,6 +2,7 @@ package diregistry
 
 import (
 	"example/config"
+	"example/internal/common/helper/copyhepler"
 	"example/internal/common/helper/cronschedulerhelper"
 	"example/internal/common/helper/dihelper"
 	"example/internal/common/helper/logwriterhelper"
@@ -24,6 +25,7 @@ import (
 const (
 	ConfigDIName                string = "Config"
 	ValidateDIName              string = "Validate"
+	ModelConverterDIName        string = "ModelConverter"
 	CronSchedulerDIName         string = "CronScheduler"
 	SqlGormLogHelperDIName      string = "SqlGormLogHelper"
 	SqlGormPostgresHelperDIName string = "SqlGormPostgresHelper"
@@ -72,6 +74,16 @@ func initBuilder() {
 			Scope: di.App,
 			Build: func(ctn di.Container) (interface{}, error) {
 				return validatehelper.NewValidate(), nil
+			},
+			Close: func(obj interface{}) error {
+				return nil
+			},
+		}, di.Def{
+			Name:  ModelConverterDIName,
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				modelConverter := copyhepler.NewModelConverter()
+				return modelConverter, nil
 			},
 			Close: func(obj interface{}) error {
 				return nil
@@ -223,7 +235,8 @@ func initBuilder() {
 			Scope: di.App,
 			Build: func(ctn di.Container) (interface{}, error) {
 				userRepository := ctn.Get(UserRepositoryDIName).(repository.UserRepository)
-				return usecase.NewUserUseCase(userRepository), nil
+				modelConverter := ctn.Get(ModelConverterDIName).(copyhepler.ModelConverter)
+				return usecase.NewUserUseCase(userRepository, modelConverter), nil
 			},
 			Close: func(obj interface{}) error {
 				return nil
@@ -249,7 +262,8 @@ func initBuilder() {
 			Scope: di.App,
 			Build: func(ctn di.Container) (interface{}, error) {
 				userUseCase := ctn.Get(UserUseCaseDIName).(usecase.UserUseCase)
-				return controller.NewUserController(userUseCase), nil
+				modelConverter := ctn.Get(ModelConverterDIName).(copyhepler.ModelConverter)
+				return controller.NewUserController(userUseCase, modelConverter), nil
 			},
 			Close: func(obj interface{}) error {
 				return nil

@@ -37,9 +37,10 @@ type (
 	}
 
 	BaseEntity struct {
-		CreatedTime      time.Time      `gorm:"column:created_date;type:timestamptz(3);not null;autoCreateTime;comment:created date"`
-		CreatedUser      sql.NullString `gorm:"column:created_by;type:varchar;comment:created by"`
-		LastModifiedTime time.Time      `gorm:"column:updated_date;type:timestamptz(3);not null;autoUpdateTime;comment:updated date"`
-		LastModifiedUser sql.NullString `gorm:"column:updated_by;type:varchar;comment:updated by"`
+		CreatedTime      time.Time      `gorm:"column:created_time;type:timestamptz(3);not null;autoCreateTime;comment:created date"`
+		CreatedUser      sql.NullString `gorm:"column:created_user;type:varchar;comment:created by"`
+		LastModifiedTime time.Time      `gorm:"column:last_modified_time;type:timestamptz(3);not null;autoUpdateTime;comment:updated date"`
+		LastModifiedUser sql.NullString
+		DeletedTime      gorm.DeletedAt `gorm:"column:deleted_time;type:timestamptz(3);comment:deleted date"`
 	}
 )
