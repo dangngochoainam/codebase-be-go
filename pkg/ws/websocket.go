@@ -2,9 +2,11 @@ package ws
 
 import (
 	"encoding/json"
+	"example/internal/common/helper/loghelper"
 	"example/model"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -153,19 +155,24 @@ func serveWs(hub *hub, w http.ResponseWriter, r *http.Request) {
 }
 
 func StartWebsocketServer() {
+	err := loghelper.InitZap(os.Getenv("app"), os.Getenv("env"))
+	if err != nil {
+		log.Panic("Can't init zap logger", err)
+	}
+
 	hub := NewHub().(*hub)
 	go hub.run()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Simple Server")
+		loghelper.Logger.Info("Simple Server")
 	})
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
-		log.Println("Listen client connected")
+		loghelper.Logger.Info("Listen client connected")
 	})
 
-	err := http.ListenAndServe(":8081", nil)
+	err = http.ListenAndServe(":8081", nil)
 	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+		loghelper.Logger.Fatal("ListenAndServe: ", err)
 	}
 }

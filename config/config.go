@@ -3,6 +3,7 @@ package config
 import "example/internal/common/helper/confighelper"
 
 var defaultConfig = []byte(`
+	app: go-example
 	env: test
 	http_address: 9999
 `)
@@ -27,6 +28,7 @@ var defaultConfig = []byte(`
 
 type (
 	Config struct {
+		App              string            `mapstructure:"app"`
 		Env              string            `mapstructure:"env"`
 		HttpAddress      uint32            `mapstructure:"http_address"`
 		DatabasePostgres SqlDatabaseConfig `mapstructure:"database_postgres"`

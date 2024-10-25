@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"example/config"
+	"example/internal/common/helper/loghelper"
 	"example/internal/diregistry"
 	"example/internal/router"
 	"fmt"
@@ -20,6 +21,11 @@ func StartHTTPServer() {
 	c := diregistry.GetDependency(diregistry.CronSchedulerDIName).(*cron.Cron)
 	defer c.Stop()
 
+	err := loghelper.InitZap(cfg.App, cfg.Env)
+	if err != nil {
+		log.Panic("Can't init zap logger", err)
+	}
+
 	routersInit := router.InitRouter()
 
 	port := fmt.Sprintf(":%d", cfg.HttpAddress)
@@ -28,9 +34,9 @@ func StartHTTPServer() {
 		Handler: routersInit,
 	}
 
-	log.Printf("[INFO] Start http server listening %s", port)
-	err := server.ListenAndServe()
+	loghelper.Logger.Infof("[INFO] Start http server listening %s", port)
+	err = server.ListenAndServe()
 	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+		loghelper.Logger.Fatal("ListenAndServe: ", err)
 	}
 }
