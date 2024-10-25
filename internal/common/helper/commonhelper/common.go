@@ -4,7 +4,7 @@ type Environment string
 
 const (
 	ENV__DEV Environment = "dev"
-	ENV__PRD Environment = "prd"
+	ENV__PRD Environment = "production"
 )
 
 type LogLevel string

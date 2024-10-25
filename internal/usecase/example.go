@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"log"
+	"example/internal/common/helper/loghelper"
 	"sync"
 	"time"
 )
@@ -33,13 +33,13 @@ func (u *exampleUseCase) GoroutineTest() (any, error) {
 func (u *exampleUseCase) MutexTest() {
 	u.Mutex.Lock()
 	defer u.Mutex.Unlock()
-	log.Println("Lock")
+	loghelper.Logger.Info("Lock")
 	count = count + 1
-	log.Println(count)
+	loghelper.Logger.Info(count)
 	time.Sleep(5 * time.Second)
-	log.Println("Unlock")
+	loghelper.Logger.Info("Unlock")
 }
 
 func (u *exampleUseCase) CronScheduler() {
-	log.Println("CronScheduler")
+	loghelper.Logger.Info("CronScheduler")
 }
