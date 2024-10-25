@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"example/entity"
 	"example/internal/dto"
 	"example/internal/repository"
 )
@@ -8,6 +9,7 @@ import (
 type (
 	UserUseCase interface {
 		FindUsers(input *dto.FindUsersRequestDTO) (*dto.FindUsersResponseDTO, error)
+		CreateUser(input *dto.CreateUserRequestDTO) (bool, error)
 	}
 
 	userUseCase struct {
@@ -36,8 +38,21 @@ func (u *userUseCase) FindUsers(input *dto.FindUsersRequestDTO) (*dto.FindUsersR
 	}
 	result := &dto.FindUsersResponseDTO{
 		PagingResponse: response,
-		List: users,
+		List:           users,
 		// List: users,
 	}
 	return result, nil
+}
+
+func (u *userUseCase) CreateUser(input *dto.CreateUserRequestDTO) (bool, error) {
+	userEntity := &entity.User{
+		Username: input.Username,
+		Password: input.Password,
+	}
+	_, err := u.userRepository.CreateUser(userEntity)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

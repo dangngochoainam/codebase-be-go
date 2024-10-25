@@ -12,6 +12,7 @@ import (
 type (
 	UserController interface {
 		GetUserList(ctx *gin.Context)
+		CreateUser(ctx *gin.Context)
 	}
 
 	userController struct {
@@ -25,6 +26,34 @@ func NewUserController(userUseCase usecase.UserUseCase) UserController {
 	}
 }
 
+func (u *userController) CreateUser(ctx *gin.Context) {
+	appC := responsehelper.Gin{
+		C: ctx,
+	}
+
+	// handle request from client
+	input := &dto.CreateUserRequestDTO{}
+	err := appC.C.ShouldBindBodyWithJSON(input)
+	if err != nil {
+		appC.Response(http.StatusBadRequest, responsehelper.ERROR, nil)
+		return
+	}
+
+	// call usecase handle business
+	data, err := u.userUseCase.CreateUser(&dto.CreateUserRequestDTO{
+		Username: input.Username,
+		Password: input.Password,
+	})
+
+	// handle response into client
+	if err != nil {
+		appC.Response(http.StatusBadRequest, responsehelper.ERROR, nil)
+		return
+	}
+	appC.Response(http.StatusOK, responsehelper.SUCCESS, data)
+	return
+}
+
 func (u *userController) GetUserList(ctx *gin.Context) {
 	appC := responsehelper.Gin{
 		C: ctx,
@@ -32,7 +61,7 @@ func (u *userController) GetUserList(ctx *gin.Context) {
 
 	// handle request from client
 	input := &dto.FindUsersRequestDTO{}
-	err := appC.C.ShouldBindQuery(input)
+	err := appC.C.ShouldBindBodyWithJSON(input)
 	if err != nil {
 		appC.Response(http.StatusBadRequest, responsehelper.ERROR, nil)
 		return

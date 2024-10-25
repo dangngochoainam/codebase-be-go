@@ -2,33 +2,34 @@ package middleware
 
 import (
 	"example/internal/common/helper/commonhelper"
+	"example/internal/common/helper/loghelper"
 	"example/internal/dto"
 	"fmt"
+	"github.com/google/uuid"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 func SetTraceIdMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := &dto.BaseRequestDTO{}
 
-		err := c.ShouldBind(req)
+		err := c.ShouldBindBodyWithJSON(req)
 		if err != nil {
-			fmt.Errorf("Error: %s\n", err)
+			loghelper.Logger.Errorf("Error: %s\n", err)
 		}
 		if req.TraceId == "" {
 			req.TraceId = uuid.New().String()
 		}
 
-		fmt.Printf("The request with uuid %s is started \n", req.TraceId)
+		loghelper.Logger.Debug("The request with uuid %s is started \n", req.TraceId)
 
 		c.Set(string(commonhelper.HeaderKeyType_TraceId), req.TraceId)
 
 		c.Next()
 
-		fmt.Printf("The request with uuid %s is served \n", req.TraceId)
+		loghelper.Logger.Debugf("The request with uuid %s is served \n", req.TraceId)
 	}
 }
 

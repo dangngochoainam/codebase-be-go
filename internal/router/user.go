@@ -11,4 +11,6 @@ func registerUserRouter(router *gin.RouterGroup) {
 	userController := diregistry.GetDependency(diregistry.UserControllerDIName).(controller.UserController)
 
 	router.GET("/", userController.GetUserList)
+	router.POST("/", userController.CreateUser)
+
 }
