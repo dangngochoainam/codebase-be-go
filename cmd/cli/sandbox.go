@@ -1,17 +1,38 @@
 package main
 
 import (
-	"context"
-	"example/internal/common/helper/loghelper"
+	"log"
+	"reflect"
 )
 
-func main() {
-	loghelper.InitZap("go-example", "dev")
+type SubStruct struct {
+	sub int
+}
 
-	loghelper.Logger.WithContext(context.Background()).Info(";sldfksd")
-	// Logger.DPanic("asdasda")
-	// Logger.Debug(";sldfksd")
-	// Logger.Error(";sldfksd")
-	// Logger.Fatalln(";sldfksd")
-	// Logger.Warn(";sldfksd")
+type TestStruct struct {
+	a   string
+	b   []string
+	sub SubStruct
+}
+
+func GetFieldName(data interface{}) []string {
+	fields := make([]string, 0)
+	typeOfData := reflect.TypeOf(data)
+
+	for i := 0; i < typeOfData.NumField(); i++ {
+		fields = append(fields, typeOfData.Field(i).Name)
+	}
+
+	return fields
+}
+
+func main() {
+
+	dataTest := TestStruct{
+		a:   "aaa",
+		b:   []string{"bbb", "ccc"},
+		sub: SubStruct{sub: 111},
+	}
+
+	log.Println(GetFieldName(dataTest))
 }

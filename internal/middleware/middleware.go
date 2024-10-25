@@ -15,10 +15,8 @@ func SetTraceIdMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := &dto.BaseRequestDTO{}
 
-		err := c.ShouldBindBodyWithJSON(req)
-		if err != nil {
-			loghelper.Logger.Errorf("Error: %s\n", err)
-		}
+		_ = c.ShouldBindBodyWithJSON(req)
+
 		if req.TraceId == "" {
 			req.TraceId = uuid.New().String()
 		}
