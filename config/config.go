@@ -43,6 +43,12 @@ database_log:
   use_logging_file: false
   auto_migration: false
   max_open_conns: 10
+redis_client:
+  host: 0.0.0.0
+  port: 6379
+  username: 
+  password: Abc12345
+  db:
 `)
 
 type (
@@ -53,6 +59,7 @@ type (
 		HttpAddress      uint32            `mapstructure:"http_address"`
 		DatabasePostgres SqlDatabaseConfig `mapstructure:"database_postgres"`
 		DatabaseLog      SqlDatabaseConfig `mapstructure:"database_log"`
+		RedisClient      RedisConfig       `mapstructure:"redis_client"`
 	}
 
 	SqlDatabaseConfig struct {
@@ -77,6 +84,15 @@ type (
 		UseLoggingDb        bool     `mapstructure:"use_logging_db"`
 		UseLoggingFile      bool     `mapstructure:"use_logging_file"`
 		AutoMigration       bool     `mapstructure:"auto_migration"`
+	}
+
+	RedisConfig struct {
+		Address  string `mapstructure:"addrs"`
+		Host     string `mapstructure:"host"`
+		Port     uint32 `mapstructure:"port"`
+		Username string `mapstructure:"username"`
+		Password string `mapstructure:"password"`
+		DB       int    `mapstructure:"db"`
 	}
 )
 

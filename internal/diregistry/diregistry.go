@@ -7,11 +7,14 @@ import (
 	"example/internal/common/helper/dihelper"
 	"example/internal/common/helper/envhelper"
 	"example/internal/common/helper/logwriterhelper"
+	"example/internal/common/helper/redisclienthelper"
+	"example/internal/common/helper/redishelper"
 	"example/internal/common/helper/sqlormhelper"
 	"example/internal/common/helper/validatehelper"
 	"example/internal/controller"
 	"example/internal/repository"
 	"example/internal/usecase"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -27,6 +30,8 @@ const (
 	ConfigDIName                string = "Config"
 	ValidateDIName              string = "Validate"
 	ModelConverterDIName        string = "ModelConverter"
+	RedisClientHelperDIName     string = "RedisClientHelper"
+	RedisSessionHelperDIName    string = "RedisSession"
 	CronSchedulerDIName         string = "CronScheduler"
 	SqlGormLogHelperDIName      string = "SqlGormLogHelper"
 	SqlGormPostgresHelperDIName string = "SqlGormPostgresHelper"
@@ -78,6 +83,28 @@ func initBuilder() {
 			},
 			Close: func(obj interface{}) error {
 				return nil
+			},
+		}, di.Def{
+			Name:  RedisClientHelperDIName,
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				cfg := ctn.Get(ConfigDIName).(*config.Config)
+				opts := &redisclienthelper.RedisConfigOptions{
+					Address:  fmt.Sprintf("%s:%d", cfg.RedisClient.Host, cfg.RedisClient.Port),
+					Password: cfg.RedisClient.Password,
+					DB:       cfg.RedisClient.DB,
+				}
+				redisClient := redisclienthelper.NewClientRedisHelper(opts)
+				return redisClient, nil
+			},
+		}, di.Def{
+			Name:  RedisSessionHelperDIName,
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				redisClientHelper := ctn.Get(RedisClientHelperDIName).(*redisclienthelper.RedisClientHelper)
+
+				redisSession := redishelper.NewRedisSessionHelper(redisClientHelper)
+				return redisSession, nil
 			},
 		}, di.Def{
 			Name:  ModelConverterDIName,
@@ -284,7 +311,8 @@ func initBuilder() {
 			Scope: di.App,
 			Build: func(ctn di.Container) (interface{}, error) {
 				exampleUseCase := ctn.Get(ExampleUseCaseDIName).(usecase.ExampleUseCase)
-				return controller.NewExampleController(exampleUseCase), nil
+				redisSession := ctn.Get(RedisSessionHelperDIName).(redishelper.RedisSessionHelper)
+				return controller.NewExampleController(exampleUseCase, redisSession), nil
 			},
 			Close: func(obj interface{}) error {
 				return nil
