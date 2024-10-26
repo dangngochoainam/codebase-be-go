@@ -4,7 +4,6 @@ import (
 	"example/internal/common/helper/commonhelper"
 	"example/internal/common/helper/loghelper"
 	"example/internal/dto"
-	"fmt"
 	"github.com/google/uuid"
 	"time"
 
@@ -14,20 +13,18 @@ import (
 func SetTraceIdMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := &dto.BaseRequestDTO{}
-
 		_ = c.ShouldBindBodyWithJSON(req)
 
 		if req.TraceId == "" {
 			req.TraceId = uuid.New().String()
 		}
 
-		loghelper.Logger.Debug("The request with uuid %s is started \n", req.TraceId)
-
+		loghelper.Logger.Debugf("The request with traceId %s is started", req.TraceId)
 		c.Set(string(commonhelper.HeaderKeyType_TraceId), req.TraceId)
 
 		c.Next()
 
-		loghelper.Logger.Debugf("The request with uuid %s is served \n", req.TraceId)
+		loghelper.Logger.Debugf("The request with traceId %s is served", req.TraceId)
 	}
 }
 
@@ -37,7 +34,8 @@ func SetTimeMsMiddleware() gin.HandlerFunc {
 
 		c.Next()
 
+		traceId := c.GetString(string(commonhelper.HeaderKeyType_TraceId))
 		executeTimeDuration := time.Since(start)
-		fmt.Println("executeTimeDuration", executeTimeDuration)
+		loghelper.Logger.Debugf("Execute time duration of traceId %s is %s", traceId, executeTimeDuration)
 	}
 }

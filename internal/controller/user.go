@@ -2,6 +2,7 @@ package controller
 
 import (
 	"example/internal/common/helper/copyhepler"
+	"example/internal/common/helper/loghelper"
 	"example/internal/common/helper/responsehelper"
 	"example/internal/dto"
 	"example/internal/usecase"
@@ -43,6 +44,7 @@ func (u *userController) CreateUser(ctx *gin.Context) {
 	input := &dto.CreateUserRequestDTO{}
 	err := appC.C.ShouldBindBodyWithJSON(input)
 	if err != nil {
+		loghelper.Logger.Errorf("Got error while binding body, err: %v", err)
 		appC.Response(http.StatusBadRequest, responsehelper.ERROR, nil)
 		return
 	}
@@ -52,6 +54,7 @@ func (u *userController) CreateUser(ctx *gin.Context) {
 
 	// handle response into client
 	if err != nil {
+		loghelper.Logger.Errorf("Got error while creating user, err: %v", err)
 		appC.Response(http.StatusBadRequest, responsehelper.ERROR, nil)
 		return
 	}

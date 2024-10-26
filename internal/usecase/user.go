@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"example/entity"
 	"example/internal/common/helper/copyhepler"
 	"example/internal/dto"
@@ -114,9 +115,12 @@ func (u *userUseCase) UpdateUserById(id string, body *dto.UpdateUserRequestDTO) 
 	dataToUpdate := &dto.UpdateUserInput{}
 	u.modelConverter.ToModel(dataToUpdate, body)
 
-	_, err := u.userRepository.UpdateUserById(id, dataToUpdate)
+	rowsAffected, err := u.userRepository.UpdateUserById(id, dataToUpdate)
 	if err != nil {
 		return false, err
+	}
+	if rowsAffected == 0 {
+		return false, errors.New("Update not effect!!")
 	}
 
 	return true, nil
@@ -129,18 +133,24 @@ func (u *userUseCase) UpdateUser(body *dto.UpdateUserRequestDTO) (bool, error) {
 		Age: 23,
 	}
 
-	_, err := u.userRepository.UpdateUser(updateUserCondInput, dataToUpdate)
+	rowsAffected, err := u.userRepository.UpdateUser(updateUserCondInput, dataToUpdate)
 	if err != nil {
 		return false, err
+	}
+	if rowsAffected == 0 {
+		return false, errors.New("Update not effect!!")
 	}
 
 	return true, nil
 }
 
 func (u *userUseCase) SoftDeleteUser(id string) (bool, error) {
-	_, err := u.userRepository.SoftDeleteUser(id)
+	rowsAffected, err := u.userRepository.SoftDeleteUser(id)
 	if err != nil {
 		return false, err
+	}
+	if rowsAffected == 0 {
+		return false, errors.New("Update not effect!!")
 	}
 
 	return true, nil

@@ -3,7 +3,7 @@ package responsehelper
 var MsgFlags = map[SystemCode]string{
 	SUCCESS:        "ok",
 	ERROR:          "fail",
-	INVALID_PARAMS: "请求参数错误",
+	INVALID_PARAMS: "invalid params",
 }
 
 // GetMsg get error information based on Code

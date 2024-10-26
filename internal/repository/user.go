@@ -96,13 +96,12 @@ func (u *userRepository) UpdateUserById(id string, dataToUpdate *dto.UpdateUserI
 	fieldsToUpdate := structhelper.GetFieldName(*dataToUpdate)
 	result := db.Model(user).Where(updateUserCond).Select(fieldsToUpdate).Updates(dataToUpdate)
 	if result.Error != nil {
-		return 0, result.Error
+		return result.RowsAffected, result.Error
 	}
 
 	return result.RowsAffected, nil
 }
 
-// TODO: check update struct with falsy
 func (u *userRepository) UpdateUser(input *dto.UpdateUserCondInput, dataToUpdate *dto.UpdateUserInput) (int64, error) {
 	db := u.postgresOrmDb.Open()
 
@@ -113,7 +112,7 @@ func (u *userRepository) UpdateUser(input *dto.UpdateUserCondInput, dataToUpdate
 	fieldsToUpdate := structhelper.GetFieldName(*dataToUpdate)
 	result := db.Model(user).Where(updateUserCond).Select(fieldsToUpdate).Updates(dataToUpdate)
 	if result.Error != nil {
-		return 0, result.Error
+		return result.RowsAffected, result.Error
 	}
 
 	return result.RowsAffected, nil
@@ -126,7 +125,7 @@ func (u *userRepository) SoftDeleteUser(id string) (int64, error) {
 	}
 	result := db.Where(deleteUserCond).Delete(&entity.User{})
 	if result.Error != nil {
-		return 0, result.Error
+		return result.RowsAffected, result.Error
 	}
 
 	return result.RowsAffected, nil

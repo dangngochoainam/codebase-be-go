@@ -20,7 +20,7 @@ database_postgres:
   tls_key_file:
   tls_cert_file:
   insecure_skip_verify: false
-  logging_enabled: false
+  logging_enabled: true
   use_logging_db: false
   use_logging_file: false
   auto_migration: true
@@ -38,7 +38,7 @@ database_log:
   tls_key_file:
   tls_cert_file:
   insecure_skip_verify: false
-  logging_enabled: false
+  logging_enabled: true
   use_logging_db: false
   use_logging_file: false
   auto_migration: false

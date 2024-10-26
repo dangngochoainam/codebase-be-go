@@ -6,6 +6,7 @@ import (
 	"example/internal/common/helper/loghelper"
 	"example/internal/common/helper/logwriterhelper"
 	"example/internal/common/helper/sqlormhelper"
+	"example/internal/common/helper/validatehelper"
 	"example/internal/diregistry"
 	"example/internal/router"
 	"fmt"
@@ -61,6 +62,8 @@ func StartHTTPServer() {
 
 	c := diregistry.GetDependency(diregistry.CronSchedulerDIName).(*cron.Cron)
 	defer c.Stop()
+
+	_ = diregistry.GetDependency(diregistry.ValidateDIName).(validatehelper.ValidateHelper)
 
 	routersInit := router.InitRouter()
 

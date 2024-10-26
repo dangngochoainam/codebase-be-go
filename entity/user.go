@@ -9,5 +9,5 @@ type User struct {
 	Password string `gorm:"column:password;type:varchar;not null"`
 	Email    string `gorm:"column:email;type:varchar"`
 	Age      int    `gorm:"column:age;type:int;not null"`
-	IsActive bool   `gorm:"column:is_active;type:tinyint(1);not null;default:0"`
+	IsActive bool   `gorm:"column:is_active;type:boolean;not null;default:false"`
 }
