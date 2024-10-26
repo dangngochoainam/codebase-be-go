@@ -5,6 +5,7 @@ import (
 	"example/internal/common/helper/copyhepler"
 	"example/internal/common/helper/cronschedulerhelper"
 	"example/internal/common/helper/dihelper"
+	"example/internal/common/helper/envhelper"
 	"example/internal/common/helper/logwriterhelper"
 	"example/internal/common/helper/sqlormhelper"
 	"example/internal/common/helper/validatehelper"
@@ -102,14 +103,19 @@ func initBuilder() {
 					} else if cfg.DatabaseLog.UseLoggingFile {
 						logWriter = ctn.Get(LogsFileWriterHelperDIName).(io.Writer)
 					}
+					var parameterizedQueries, colorful bool
+					if cfg.Env == envhelper.ENVIRONMENT_DEV {
+						parameterizedQueries = false
+						colorful = true
+					}
 					gormLogger := gormLogger.New(
 						log.New(logWriter, "\r\n", log.LstdFlags), // io writer
 						gormLogger.Config{
 							SlowThreshold:             time.Millisecond * 200, // Slow SQL threshold
-							LogLevel:                  gormLogger.Warn,        // Log level
+							LogLevel:                  gormLogger.Info,        // Log level
 							IgnoreRecordNotFoundError: true,                   // Ignore ErrRecordNotFound error for logger
-							ParameterizedQueries:      true,                   // Don't include params in the SQL log
-							Colorful:                  false,                  // Disable color
+							ParameterizedQueries:      parameterizedQueries,   // Don't include params in the SQL log
+							Colorful:                  colorful,               // Disable color
 						},
 					)
 					gormConfig.Logger = gormLogger
@@ -156,14 +162,19 @@ func initBuilder() {
 					} else if cfg.DatabasePostgres.UseLoggingFile {
 						logWriter = ctn.Get(LogsFileWriterHelperDIName).(io.Writer)
 					}
+					var parameterizedQueries, colorful bool
+					if cfg.Env == envhelper.ENVIRONMENT_DEV {
+						parameterizedQueries = false
+						colorful = true
+					}
 					gormLogger := gormLogger.New(
 						log.New(logWriter, "\r\n", log.LstdFlags), // io writer
 						gormLogger.Config{
 							SlowThreshold:             time.Millisecond * 200, // Slow SQL threshold
-							LogLevel:                  gormLogger.Warn,        // Log level
+							LogLevel:                  gormLogger.Info,        // Log level
 							IgnoreRecordNotFoundError: true,                   // Ignore ErrRecordNotFound error for logger
-							ParameterizedQueries:      true,                   // Don't include params in the SQL log
-							Colorful:                  false,                  // Disable color
+							ParameterizedQueries:      parameterizedQueries,   // Don't include params in the SQL log
+							Colorful:                  colorful,               // Disable color
 						},
 					)
 					gormConfig.Logger = gormLogger

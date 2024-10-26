@@ -17,8 +17,8 @@ func InitRouter() *gin.Engine {
 		})
 	})
 
-	router.Use(middleware.SetTraceIdMiddleware())
 	router.Use(middleware.SetTimeMsMiddleware())
+	router.Use(middleware.SetTraceIdMiddleware())
 
 	// router.POST("/auth", api.GetAuth)
 	// router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

@@ -3,6 +3,8 @@ package router
 import (
 	"example/internal/controller"
 	"example/internal/diregistry"
+	"example/internal/dto"
+	"example/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,7 +12,7 @@ import (
 func registerUserRouter(router *gin.RouterGroup) {
 	userController := diregistry.GetDependency(diregistry.UserControllerDIName).(controller.UserController)
 
-	router.POST("/", userController.CreateUser)
+	router.POST("/", middleware.ValidateRequestMiddleware(&dto.CreateUserRequestDTO{}), userController.CreateUser)
 	router.POST("/list", userController.CreateManyUser)
 	router.GET("/one", userController.FindOneUser)
 	router.GET("/", userController.FindUsers)
