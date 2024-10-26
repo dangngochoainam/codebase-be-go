@@ -12,7 +12,8 @@ import (
 func registerExampleRouter(router *gin.RouterGroup) {
 	exampleController := diregistry.GetDependency(diregistry.ExampleControllerDIName).(controller.ExampleController)
 
+	router.GET("/redis-test", exampleController.RedisTest)
 	router.GET("/goroutine-test", exampleController.GoroutineTest)
 	router.GET("/mutex-test", exampleController.MutexTest)
-	router.POST("/validate-test", middleware.ValidateRequestMiddleware(&dto.ValidateExam	pleRequestDTO{}), exampleController.ValidateTest)
+	router.POST("/validate-test", middleware.ValidateRequestMiddleware(&dto.ValidateExampleRequestDTO{}), exampleController.ValidateTest)
 }
