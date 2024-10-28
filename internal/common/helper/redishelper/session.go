@@ -3,6 +3,7 @@ package redishelper
 import (
 	"context"
 	"example/internal/common/helper/redisclienthelper"
+	"fmt"
 	"time"
 )
 
@@ -17,6 +18,10 @@ type (
 		SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) (bool, error)
 	}
 )
+
+func GenerateRedisSessionKey(resource string, userId string) string {
+	return fmt.Sprintf("session:%s#%s", resource, userId)
+}
 
 func NewRedisSessionHelper(redisClientHelper *redisclienthelper.RedisClientHelper) RedisSessionHelper {
 	return &redisHelper{

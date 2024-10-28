@@ -6,12 +6,14 @@ import (
 	"example/internal/common/helper/cronschedulerhelper"
 	"example/internal/common/helper/dihelper"
 	"example/internal/common/helper/envhelper"
+	"example/internal/common/helper/jwthelper"
 	"example/internal/common/helper/logwriterhelper"
 	"example/internal/common/helper/redisclienthelper"
 	"example/internal/common/helper/redishelper"
 	"example/internal/common/helper/sqlormhelper"
 	"example/internal/common/helper/validatehelper"
 	"example/internal/controller"
+	"example/internal/middleware"
 	"example/internal/repository"
 	"example/internal/usecase"
 	"fmt"
@@ -27,21 +29,25 @@ import (
 )
 
 const (
-	ConfigDIName                string = "Config"
-	ValidateDIName              string = "Validate"
-	ModelConverterDIName        string = "ModelConverter"
-	RedisClientHelperDIName     string = "RedisClientHelper"
-	RedisSessionHelperDIName    string = "RedisSession"
-	CronSchedulerDIName         string = "CronScheduler"
-	SqlGormLogHelperDIName      string = "SqlGormLogHelper"
-	SqlGormPostgresHelperDIName string = "SqlGormPostgresHelper"
-	LogsFileWriterHelperDIName  string = "LogsFileWriterHelper"
-	UserRepositoryDIName        string = "UserRepository"
-	ProductRepositoryDIName     string = "ProductRepository"
-	UserUseCaseDIName           string = "UserUseCase"
-	ExampleUseCaseDIName        string = "ExampleUseCase"
-	UserControllerDIName        string = "UserController"
-	ExampleControllerDIName     string = "ExampleController"
+	ConfigDIName                   string = "Config"
+	ValidateDIName                 string = "Validate"
+	ModelConverterDIName           string = "ModelConverter"
+	JwtHelperDIName                string = "JwtHelper"
+	RedisClientHelperDIName        string = "RedisClientHelper"
+	RedisSessionHelperDIName       string = "RedisSession"
+	CronSchedulerDIName            string = "CronScheduler"
+	SqlGormLogHelperDIName         string = "SqlGormLogHelper"
+	SqlGormPostgresHelperDIName    string = "SqlGormPostgresHelper"
+	LogsFileWriterHelperDIName     string = "LogsFileWriterHelper"
+	UserRepositoryDIName           string = "UserRepository"
+	ProductRepositoryDIName        string = "ProductRepository"
+	UserUseCaseDIName              string = "UserUseCase"
+	ExampleUseCaseDIName           string = "ExampleUseCase"
+	AuthenticationUseCaseDIName    string = "AuthenticationUseCase"
+	UserControllerDIName           string = "UserController"
+	ExampleControllerDIName        string = "ExampleController"
+	AuthenticationControllerDIName string = "AuthenticationController"
+	MiddlewareDIName               string = "Middleware"
 )
 
 func BuildDIContainer() {
@@ -96,6 +102,17 @@ func initBuilder() {
 				}
 				redisClient := redisclienthelper.NewClientRedisHelper(opts)
 				return redisClient, nil
+			},
+		}, di.Def{
+			Name:  JwtHelperDIName,
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				cfg := ctn.Get(ConfigDIName).(*config.Config)
+				opts := &jwthelper.JwtConfigOptions{
+					JwtSecret: cfg.Jwt.JwtSecret,
+				}
+				jwtHelper := jwthelper.NewJwt(opts)
+				return jwtHelper, nil
 			},
 		}, di.Def{
 			Name:  RedisSessionHelperDIName,
@@ -289,6 +306,20 @@ func initBuilder() {
 			Close: func(obj interface{}) error {
 				return nil
 			},
+		}, di.Def{
+			Name:  AuthenticationUseCaseDIName,
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				userRepository := ctn.Get(UserRepositoryDIName).(repository.UserRepository)
+				modelConverter := ctn.Get(ModelConverterDIName).(copyhepler.ModelConverter)
+				jwt := ctn.Get(JwtHelperDIName).(jwthelper.JwtHelper)
+				cfg := ctn.Get(ConfigDIName).(*config.Config)
+				redisSession := ctn.Get(RedisSessionHelperDIName).(redishelper.RedisSessionHelper)
+				return usecase.NewAuthenticationUseCase(userRepository, modelConverter, jwt, cfg, redisSession), nil
+			},
+			Close: func(obj interface{}) error {
+				return nil
+			},
 		})
 		return arr
 	}
@@ -312,7 +343,42 @@ func initBuilder() {
 			Build: func(ctn di.Container) (interface{}, error) {
 				exampleUseCase := ctn.Get(ExampleUseCaseDIName).(usecase.ExampleUseCase)
 				redisSession := ctn.Get(RedisSessionHelperDIName).(redishelper.RedisSessionHelper)
-				return controller.NewExampleController(exampleUseCase, redisSession), nil
+				jwtHelper := ctn.Get(JwtHelperDIName).(jwthelper.JwtHelper)
+				return controller.NewExampleController(exampleUseCase, redisSession, jwtHelper), nil
+			},
+			Close: func(obj interface{}) error {
+				return nil
+			},
+		}, di.Def{
+			Name:  AuthenticationControllerDIName,
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				authenticationUseCase := ctn.Get(AuthenticationUseCaseDIName).(usecase.AuthenticationUseCase)
+				redisSession := ctn.Get(RedisSessionHelperDIName).(redishelper.RedisSessionHelper)
+				jwtHelper := ctn.Get(JwtHelperDIName).(jwthelper.JwtHelper)
+				return controller.NewAuthenticationController(authenticationUseCase, redisSession, jwtHelper), nil
+			},
+			Close: func(obj interface{}) error {
+				return nil
+			},
+		})
+		return arr
+	}
+
+	dihelper.MiddlewareBuilder = func() []di.Def {
+		arr := []di.Def{}
+		arr = append(arr, di.Def{
+			Name:  MiddlewareDIName,
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				jwtHelper := ctn.Get(JwtHelperDIName).(jwthelper.JwtHelper)
+				redisSession := ctn.Get(RedisSessionHelperDIName).(redishelper.RedisSessionHelper)
+				anonymousAccessURLs := []string{
+					//"/api/v1/example/jwt-test",
+					"/api/v1/auth/login",
+					"/api/v1/users/",
+				}
+				return middleware.NewMiddleware(jwtHelper, redisSession, anonymousAccessURLs), nil
 			},
 			Close: func(obj interface{}) error {
 				return nil

@@ -49,6 +49,10 @@ redis_client:
   username: 
   password: Abc12345
   db:
+jwt:
+  key_secret: ~!Messi!@#$Ronaldo%^&Marco832574Reus*()
+  token_life_time: 60
+  refresh_token_life_time: 240
 `)
 
 type (
@@ -60,6 +64,7 @@ type (
 		DatabasePostgres SqlDatabaseConfig `mapstructure:"database_postgres"`
 		DatabaseLog      SqlDatabaseConfig `mapstructure:"database_log"`
 		RedisClient      RedisConfig       `mapstructure:"redis_client"`
+		Jwt              JwtConfig         `mapstructure:"jwt"`
 	}
 
 	SqlDatabaseConfig struct {
@@ -93,6 +98,12 @@ type (
 		Username string `mapstructure:"username"`
 		Password string `mapstructure:"password"`
 		DB       int    `mapstructure:"db"`
+	}
+
+	JwtConfig struct {
+		JwtSecret            string `mapstructure:"key_secret"`
+		TokenLifeTime        int64  `mapstructure:"token_life_time"`
+		RefreshTokenLifeTime int64  `mapstructure:"refresh_token_life_time"`
 	}
 )
 

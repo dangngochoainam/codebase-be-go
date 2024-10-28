@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func registerUserRouter(router *gin.RouterGroup) {
+func registerUserRouter(router *gin.RouterGroup, middleware middleware.Middleware) {
 	userController := diregistry.GetDependency(diregistry.UserControllerDIName).(controller.UserController)
 
 	router.POST("/", middleware.ValidateRequestMiddleware(&dto.CreateUserRequestDTO{}), userController.CreateUser)

@@ -2,7 +2,9 @@ package middleware
 
 import (
 	"example/internal/common/helper/commonhelper"
+	"example/internal/common/helper/jwthelper"
 	"example/internal/common/helper/loghelper"
+	"example/internal/common/helper/redishelper"
 	"example/internal/dto"
 	"github.com/google/uuid"
 	"time"
@@ -10,7 +12,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetTraceIdMiddleware() gin.HandlerFunc {
+type (
+	Middleware interface {
+		SetTimeMsMiddleware() gin.HandlerFunc
+		SetTraceIdMiddleware() gin.HandlerFunc
+		ValidateRequestMiddleware(obj any) gin.HandlerFunc
+		AuthenticationMiddleware() gin.HandlerFunc
+	}
+	middleware struct {
+		jwtHelper           jwthelper.JwtHelper
+		redisSession        redishelper.RedisSessionHelper
+		anonymousAccessURLs []string
+	}
+)
+
+func NewMiddleware(jwtHelper jwthelper.JwtHelper, redisSession redishelper.RedisSessionHelper, anonymousAccessURLs []string) Middleware {
+	return &middleware{
+		jwtHelper:           jwtHelper,
+		redisSession:        redisSession,
+		anonymousAccessURLs: anonymousAccessURLs,
+	}
+}
+
+func (m *middleware) SetTraceIdMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := &dto.BaseRequestDTO{}
 		_ = c.ShouldBindBodyWithJSON(req)
@@ -28,7 +52,7 @@ func SetTraceIdMiddleware() gin.HandlerFunc {
 	}
 }
 
-func SetTimeMsMiddleware() gin.HandlerFunc {
+func (m *middleware) SetTimeMsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 

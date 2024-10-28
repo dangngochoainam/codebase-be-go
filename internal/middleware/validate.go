@@ -9,7 +9,7 @@ import (
 	"reflect"
 )
 
-func ValidateRequestMiddleware(obj any) gin.HandlerFunc {
+func (m *middleware) ValidateRequestMiddleware(obj any) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		appC := responsehelper.Gin{
 			C: c,
@@ -18,24 +18,21 @@ func ValidateRequestMiddleware(obj any) gin.HandlerFunc {
 		objType := reflect.TypeOf(obj).Elem()
 		objValue := reflect.New(objType).Interface()
 
-		// Bind JSON input dynamically to the passed struct type
-		if err := c.ShouldBindBodyWithJSON(&objValue); err != nil {
+		if err := appC.C.ShouldBindBodyWithJSON(&objValue); err != nil {
 			loghelper.Logger.Errorf("Got error while binding body, err: %v", err)
 			appC.Response(http.StatusBadRequest, responsehelper.INVALID_PARAMS, nil)
-			c.Abort()
+			appC.C.Abort()
 			return
 		}
 
 		validate := validatehelper.NewValidate()
-		// Validate the dynamically bound struct
 		if err := validate.ValidateStruct(objValue); err != nil {
 			loghelper.Logger.Errorf("Got error while validate input, err: %v", err)
 			appC.Response(http.StatusBadRequest, responsehelper.INVALID_PARAMS, nil)
-			c.Abort()
+			appC.C.Abort()
 			return
 		}
 
-		// Set the validated struct in the context for further use in handlers
-		c.Next()
+		appC.C.Next()
 	}
 }
