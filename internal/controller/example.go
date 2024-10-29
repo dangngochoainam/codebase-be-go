@@ -95,8 +95,8 @@ func (u *exampleController) JwtTest(ctx *gin.Context) {
 		C: ctx,
 	}
 
-	tokenPayload := &jwthelper.TokenPayloadInput{
-		Id: "aslkdfjadsfhlk",
+	tokenPayload := &jwthelper.TokenPayloadPublic{
+		Key: "aslkdfjadsfhlk",
 	}
 
 	token, err := u.jwtHelper.CreateToken(tokenPayload, 120)
@@ -119,12 +119,12 @@ func (u *exampleController) JwtVerifyTest(ctx *gin.Context) {
 	accessToken := appC.C.GetHeader("Authorization")
 	accessToken = accessToken[len("Bearer "):]
 
-	err := u.jwtHelper.VerifyToken(accessToken)
+	tokenPayloadPublic, err := u.jwtHelper.VerifyToken(accessToken)
 	if err != nil {
 		loghelper.Logger.Errorf("Got error while verifing token, err: %v", err)
 		appC.Response(http.StatusBadRequest, responsehelper.INVALID_PARAMS, nil)
 		return
 	}
 
-	appC.Response(200, responsehelper.SUCCESS, nil)
+	appC.Response(200, responsehelper.SUCCESS, tokenPayloadPublic)
 }

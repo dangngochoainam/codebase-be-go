@@ -6,8 +6,10 @@ import (
 	"example/internal/common/helper/loghelper"
 	"example/internal/common/helper/redishelper"
 	"example/internal/dto"
-	"github.com/google/uuid"
+	"example/internal/repository"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,14 +25,16 @@ type (
 		jwtHelper           jwthelper.JwtHelper
 		redisSession        redishelper.RedisSessionHelper
 		anonymousAccessURLs []string
+		userRepository      repository.UserRepository
 	}
 )
 
-func NewMiddleware(jwtHelper jwthelper.JwtHelper, redisSession redishelper.RedisSessionHelper, anonymousAccessURLs []string) Middleware {
+func NewMiddleware(jwtHelper jwthelper.JwtHelper, redisSession redishelper.RedisSessionHelper, anonymousAccessURLs []string, userRepository repository.UserRepository) Middleware {
 	return &middleware{
 		jwtHelper:           jwtHelper,
 		redisSession:        redisSession,
 		anonymousAccessURLs: anonymousAccessURLs,
+		userRepository:      userRepository,
 	}
 }
 

@@ -19,8 +19,15 @@ type (
 	}
 )
 
-func GenerateRedisSessionKey(resource string, userId string) string {
-	return fmt.Sprintf("session:%s#%s", resource, userId)
+type Resource string
+
+const (
+	ACCESS_TOKEN  Resource = "access_token"
+	REFRESH_TOKEN Resource = "refresh_token"
+)
+
+func GenerateRedisSessionKey(resource Resource, Id string) string {
+	return fmt.Sprintf("session:%s#%s", resource, Id)
 }
 
 func NewRedisSessionHelper(redisClientHelper *redisclienthelper.RedisClientHelper) RedisSessionHelper {

@@ -373,12 +373,14 @@ func initBuilder() {
 			Build: func(ctn di.Container) (interface{}, error) {
 				jwtHelper := ctn.Get(JwtHelperDIName).(jwthelper.JwtHelper)
 				redisSession := ctn.Get(RedisSessionHelperDIName).(redishelper.RedisSessionHelper)
+				userRepository := ctn.Get(UserRepositoryDIName).(repository.UserRepository)
 				anonymousAccessURLs := []string{
 					//"/api/v1/example/jwt-test",
 					"/api/v1/auth/login",
+					"/api/v1/auth/refresh-token",
 					"/api/v1/users/",
 				}
-				return middleware.NewMiddleware(jwtHelper, redisSession, anonymousAccessURLs), nil
+				return middleware.NewMiddleware(jwtHelper, redisSession, anonymousAccessURLs, userRepository), nil
 			},
 			Close: func(obj interface{}) error {
 				return nil
