@@ -8,6 +8,7 @@ import (
 	"example/internal/common/helper/sqlormhelper"
 	"example/internal/common/helper/validatehelper"
 	"example/internal/diregistry"
+	"example/internal/middleware"
 	"example/internal/router"
 	"fmt"
 	"gorm.io/gorm"
@@ -65,7 +66,8 @@ func StartHTTPServer() {
 
 	_ = diregistry.GetDependency(diregistry.ValidateDIName).(validatehelper.ValidateHelper)
 
-	routersInit := router.InitRouter()
+	middlewareInstance := diregistry.GetDependency(diregistry.MiddlewareDIName).(middleware.Middleware)
+	routersInit := router.InitRouter(middlewareInstance)
 
 	port := fmt.Sprintf(":%d", cfg.HttpAddress)
 	server := &http.Server{

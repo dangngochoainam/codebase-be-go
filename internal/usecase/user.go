@@ -4,6 +4,7 @@ import (
 	"errors"
 	"example/entity"
 	"example/internal/common/helper/copyhepler"
+	"example/internal/common/utils"
 	"example/internal/dto"
 	"example/internal/repository"
 )
@@ -33,13 +34,17 @@ func NewUserUseCase(userRepository repository.UserRepository, modelConverter cop
 }
 
 func (u *userUseCase) CreateUser(input *dto.CreateUserRequestDTO) (bool, error) {
+	hashPassword, err := utils.HashPassword(input.Password)
+	if err != nil {
+		return false, err
+	}
 	userEntity := &entity.User{
 		Username: input.Username,
-		Password: input.Password,
+		Password: hashPassword,
 		Email:    input.Email,
 		Age:      input.Age,
 	}
-	_, err := u.userRepository.CreateUser(userEntity)
+	_, err = u.userRepository.CreateUser(userEntity)
 	if err != nil {
 		return false, err
 	}

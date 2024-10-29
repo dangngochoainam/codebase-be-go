@@ -1,6 +1,10 @@
 package structhelper
 
-import "reflect"
+import (
+	"encoding/json"
+	"log"
+	"reflect"
+)
 
 func GetFieldName(data interface{}) []string {
 	fields := make([]string, 0)
@@ -11,6 +15,21 @@ func GetFieldName(data interface{}) []string {
 	}
 
 	return fields
+}
+
+func MapToStruct(obj any, data map[string]interface{}) error {
+	jsonStr, err := json.Marshal(data)
+	if err != nil {
+		log.Printf("Got error while marshaling data, err: %v", err)
+		return err
+	}
+
+	// Convert json string to struct
+	if err := json.Unmarshal(jsonStr, obj); err != nil {
+		log.Printf("Got error while unmarshaling data, err: %v", err)
+		return err
+	}
+	return nil
 }
 
 //func GetFieldName(iface interface{}) []string {

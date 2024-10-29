@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"example/internal/common/helper/jwthelper"
 	"example/internal/common/helper/loghelper"
 	"example/internal/common/helper/redishelper"
 	"example/internal/common/helper/responsehelper"
@@ -15,6 +16,8 @@ import (
 
 type (
 	ExampleController interface {
+		JwtTest(ctx *gin.Context)
+		JwtVerifyTest(ctx *gin.Context)
 		GoroutineTest(ctx *gin.Context)
 		RedisTest(ctx *gin.Context)
 		MutexTest(ctx *gin.Context)
@@ -24,13 +27,15 @@ type (
 	exampleController struct {
 		exampleUseCase usecase.ExampleUseCase
 		redisSession   redishelper.RedisSessionHelper
+		jwtHelper      jwthelper.JwtHelper
 	}
 )
 
-func NewExampleController(exampleUseCase usecase.ExampleUseCase, redisSession redishelper.RedisSessionHelper) ExampleController {
+func NewExampleController(exampleUseCase usecase.ExampleUseCase, redisSession redishelper.RedisSessionHelper, jwtHelper jwthelper.JwtHelper) ExampleController {
 	return &exampleController{
 		exampleUseCase: exampleUseCase,
 		redisSession:   redisSession,
+		jwtHelper:      jwtHelper,
 	}
 }
 
@@ -83,4 +88,43 @@ func (u *exampleController) ValidateTest(ctx *gin.Context) {
 		return
 	}
 	appC.Response(200, responsehelper.SUCCESS, body)
+}
+
+func (u *exampleController) JwtTest(ctx *gin.Context) {
+	appC := responsehelper.Gin{
+		C: ctx,
+	}
+
+	tokenPayload := &jwthelper.TokenPayloadPublic{
+		Key: "aslkdfjadsfhlk",
+	}
+
+	token, err := u.jwtHelper.CreateToken(tokenPayload, 120)
+	if err != nil {
+		loghelper.Logger.Errorf("Got error while generating token, err: %v", err)
+		appC.Response(http.StatusBadRequest, responsehelper.INVALID_PARAMS, nil)
+		return
+	}
+
+	loghelper.Logger.Info("token: ", token)
+
+	appC.Response(200, responsehelper.SUCCESS, token)
+}
+
+func (u *exampleController) JwtVerifyTest(ctx *gin.Context) {
+	appC := responsehelper.Gin{
+		C: ctx,
+	}
+
+	accessToken := appC.C.GetHeader("Authorization")
+	accessToken = accessToken[len("Bearer "):]
+
+	tokenPayloadPublic, err := u.jwtHelper.VerifyToken(accessToken)
+	if err != nil {
+		loghelper.Logger.Errorf("Got error while verifing token, err: %v", err)
+		appC.Response(http.StatusBadRequest, responsehelper.INVALID_PARAMS, nil)
+		return
+	}
+
+	appC.Response(200, responsehelper.SUCCESS, tokenPayloadPublic)
 }

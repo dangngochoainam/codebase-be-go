@@ -17,6 +17,7 @@ var (
 	UseCasesBuilder      DIBuilder
 	RepositoriesBuilder  DIBuilder
 	ControllersBuilder   DIBuilder
+	MiddlewareBuilder    DIBuilder
 	CronSchedulerBuilder DIBuilder
 )
 
@@ -58,6 +59,11 @@ func doBuild() {
 	}
 
 	err = buildControllers()
+	if err != nil {
+		panic(err)
+	}
+
+	err = buildMiddleware()
 	if err != nil {
 		panic(err)
 	}
@@ -126,6 +132,19 @@ func buildRepository() error {
 		RepositoriesBuilder = defaultBuilder
 	}
 	defs = RepositoriesBuilder()
+	err := builder.Add(defs...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func buildMiddleware() error {
+	defs := []di.Def{}
+	if MiddlewareBuilder == nil {
+		MiddlewareBuilder = defaultBuilder
+	}
+	defs = MiddlewareBuilder()
 	err := builder.Add(defs...)
 	if err != nil {
 		return err

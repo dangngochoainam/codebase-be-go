@@ -13,6 +13,7 @@ type (
 		CreateUser(entity *entity.User) (*entity.User, error)
 		CreateUsers(entity []*entity.User) ([]*entity.User, error)
 		FindOneUser(params *dto.FindOneUserInput) (*entity.User, error)
+		FindUserById(id string) (*entity.User, error)
 		FindUsers(input *dto.FindUsersInput) ([]*entity.User, error)
 		UpdateUserById(id string, dataToUpdate *dto.UpdateUserInput) (int64, error)
 		UpdateUser(condition *dto.UpdateUserCondInput, dataToUpdate *dto.UpdateUserInput) (int64, error)
@@ -60,6 +61,22 @@ func (u *userRepository) FindOneUser(input *dto.FindOneUserInput) (*entity.User,
 	user := &entity.User{}
 	userCond := &entity.User{
 		Username: input.Username,
+	}
+
+	result := db.Where(userCond).First(user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return user, nil
+}
+
+func (u *userRepository) FindUserById(id string) (*entity.User, error) {
+	db := u.postgresOrmDb.Open()
+
+	user := &entity.User{}
+	userCond := &entity.User{
+		Id: id,
 	}
 
 	result := db.Where(userCond).First(user)
