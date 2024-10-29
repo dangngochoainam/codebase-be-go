@@ -15,6 +15,7 @@ type (
 		FindOneUser(params *dto.FindOneUserInput) (*entity.User, error)
 		FindUserById(id string) (*entity.User, error)
 		FindUsers(input *dto.FindUsersInput) ([]*entity.User, error)
+		FindUsersPaging(input *dto.FindUsersInput, pagingOpts *dto.PagingRequestDTO) ([]*entity.User, int64, error)
 		UpdateUserById(id string, dataToUpdate *dto.UpdateUserInput) (int64, error)
 		UpdateUser(condition *dto.UpdateUserCondInput, dataToUpdate *dto.UpdateUserInput) (int64, error)
 		SoftDeleteUser(id string) (int64, error)
@@ -101,6 +102,23 @@ func (u *userRepository) FindUsers(input *dto.FindUsersInput) ([]*entity.User, e
 	}
 
 	return users, nil
+}
+
+func (u *userRepository) FindUsersPaging(input *dto.FindUsersInput, pagingOpts *dto.PagingRequestDTO) ([]*entity.User, int64, error) {
+	db := u.postgresOrmDb.Open()
+
+	users := []*entity.User{}
+	userCond := &entity.User{
+		Username: input.Username,
+	}
+
+	var totalItems int64
+	result := db.Model(&entity.User{}).Where(userCond).Count(&totalItems).Scopes(pagingOpts.Paginate()).Find(&users)
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+
+	return users, totalItems, nil
 }
 
 func (u *userRepository) UpdateUserById(id string, dataToUpdate *dto.UpdateUserInput) (int64, error) {

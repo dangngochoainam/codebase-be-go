@@ -35,7 +35,7 @@ func (m *middleware) AuthenticationMiddleware() gin.HandlerFunc {
 		accessToken = accessToken[len("Bearer "):]
 		tokenPayloadPublic, err := m.jwtHelper.VerifyToken(accessToken)
 		if err != nil {
-			loghelper.Logger.Errorf("Got error while verifing token, err: %v", errors.New("Token invalid"))
+			loghelper.Logger.Errorf("Got error while verifing token, err: %v", err)
 			appC.Response(http.StatusInternalServerError, responsehelper.INVALID_PARAMS, nil)
 			appC.C.Abort()
 			return
