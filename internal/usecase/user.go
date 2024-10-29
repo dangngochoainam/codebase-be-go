@@ -91,7 +91,9 @@ func (u *userUseCase) FindUsers(query *dto.FindUsersRequestDTO) (*dto.FindUsersR
 	input := &dto.FindUsersInput{}
 	u.modelConverter.ToModel(input, query)
 
-	data, err := u.userRepository.FindUsers(input)
+	// data, err := u.userRepository.FindUsers(input)
+	data, totalItems, err := u.userRepository.FindUsersPaging(input, &query.PagingRequestDTO)
+
 	if err != nil {
 		return nil, err
 	}
@@ -103,11 +105,9 @@ func (u *userUseCase) FindUsers(query *dto.FindUsersRequestDTO) (*dto.FindUsersR
 		users = append(users, user)
 	}
 
-	response := &dto.PagingResponse{
-		CurrentPage: 1,
-		TotalPages:  2,
-		TotalItems:  3,
-	}
+	response := &dto.PagingResponse{}
+	response.Paginate(query.Page, query.PageSize, int(totalItems))
+
 	result := &dto.FindUsersResponseDTO{
 		PagingResponse: response,
 		List:           users,
