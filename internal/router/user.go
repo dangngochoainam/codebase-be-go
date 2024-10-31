@@ -13,11 +13,7 @@ func registerUserRouter(router *gin.RouterGroup, middleware middleware.Middlewar
 	userController := diregistry.GetDependency(diregistry.UserControllerDIName).(controller.UserController)
 
 	router.POST("/", middleware.ValidateRequestMiddleware(&dto.CreateUserRequestDTO{}), userController.CreateUser)
-	router.POST("/list", userController.CreateManyUser)
-	router.GET("/one", userController.FindOneUser)
 	router.GET("/", userController.FindUsers)
 	router.PUT("/:id", userController.UpdateUserById)
-	router.PUT("/", userController.UpdateUser)
 	router.DELETE("/:id", userController.SoftDeleteUser)
-
 }

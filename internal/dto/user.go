@@ -8,6 +8,13 @@ type CreateUserRequestDTO struct {
 	Age      int    `json:"age" binding:"required"`
 }
 
+type CreateUserResponseDTO struct {
+	Id       string `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Age      int    `json:"age"`
+}
+
 type CreateUsersRequestDTO struct {
 	Users []*CreateUserRequestDTO `json:"users"`
 }
