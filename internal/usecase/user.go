@@ -11,7 +11,7 @@ import (
 
 type (
 	UserUseCase interface {
-		CreateUser(input *dto.CreateUserRequestDTO) (bool, error)
+		CreateUser(input *dto.CreateUserRequestDTO) (*dto.CreateUserResponseDTO, error)
 		CreateUsers(input *dto.CreateUsersRequestDTO) (bool, error)
 		FindOneUser(input *dto.FindOneUserRequestDTO) (*dto.FindOneUserResponseDTO, error)
 		FindUsers(input *dto.FindUsersRequestDTO) (*dto.FindUsersResponseDTO, error)
@@ -33,10 +33,10 @@ func NewUserUseCase(userRepository repository.UserRepository, modelConverter cop
 	}
 }
 
-func (u *userUseCase) CreateUser(input *dto.CreateUserRequestDTO) (bool, error) {
+func (u *userUseCase) CreateUser(input *dto.CreateUserRequestDTO) (*dto.CreateUserResponseDTO, error) {
 	hashPassword, err := utils.HashPassword(input.Password)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 	userEntity := &entity.User{
 		Username: input.Username,
@@ -44,12 +44,14 @@ func (u *userUseCase) CreateUser(input *dto.CreateUserRequestDTO) (bool, error) 
 		Email:    input.Email,
 		Age:      input.Age,
 	}
-	_, err = u.userRepository.CreateUser(userEntity)
+	user, err := u.userRepository.CreateUser(userEntity)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
+	userResponse := &dto.CreateUserResponseDTO{}
+	u.modelConverter.ToModel(userResponse, user)
 
-	return true, nil
+	return userResponse, nil
 }
 
 func (u *userUseCase) CreateUsers(input *dto.CreateUsersRequestDTO) (bool, error) {
@@ -75,7 +77,6 @@ func (u *userUseCase) CreateUsers(input *dto.CreateUsersRequestDTO) (bool, error
 func (u *userUseCase) FindOneUser(input *dto.FindOneUserRequestDTO) (*dto.FindOneUserResponseDTO, error) {
 	user, err := u.userRepository.FindOneUser(&dto.FindOneUserInput{
 		Username: input.Username,
-		Password: input.Password,
 	})
 	if err != nil {
 		return nil, err
@@ -91,7 +92,6 @@ func (u *userUseCase) FindUsers(query *dto.FindUsersRequestDTO) (*dto.FindUsersR
 	input := &dto.FindUsersInput{}
 	u.modelConverter.ToModel(input, query)
 
-	// data, err := u.userRepository.FindUsers(input)
 	data, totalItems, err := u.userRepository.FindUsersPaging(input, &query.PagingRequestDTO)
 
 	if err != nil {

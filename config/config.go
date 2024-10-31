@@ -51,8 +51,8 @@ redis_client:
   db:
 jwt:
   key_secret: ~!Messi!@#$Ronaldo%^&Marco832574Reus*()
-  token_life_time: 60
-  refresh_token_life_time: 240
+  token_life_time: 60000
+  refresh_token_life_time: 240000
 `)
 
 type (
