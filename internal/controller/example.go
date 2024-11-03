@@ -43,7 +43,6 @@ func (u *exampleController) RedisTest(ctx *gin.Context) {
 	appC := responsehelper.Gin{
 		C: ctx,
 	}
-
 	token := "token is here"
 	err := u.redisSession.Set(appC.C.Request.Context(), "token", token, time.Second*30)
 	if err != nil {
@@ -51,7 +50,6 @@ func (u *exampleController) RedisTest(ctx *gin.Context) {
 		appC.Response(http.StatusBadRequest, responsehelper.ERROR, nil)
 		return
 	}
-
 	appC.Response(http.StatusOK, responsehelper.SUCCESS, nil)
 }
 
