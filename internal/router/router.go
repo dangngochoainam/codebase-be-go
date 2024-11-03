@@ -2,7 +2,6 @@ package router
 
 import (
 	"example/internal/middleware"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,6 +25,7 @@ func InitRouter(middleware middleware.Middleware) *gin.Engine {
 	// router.POST("/upload", api.UploadImage)
 
 	apiV1 := router.Group("/api/v1")
+	registerUploadFileRouter(apiV1.Group("/upload-file"), middleware)
 	registerAuthenticationRouter(apiV1.Group("/auth"), middleware)
 	registerUserRouter(apiV1.Group("/users"), middleware)
 	registerExampleRouter(apiV1.Group("/example"), middleware)

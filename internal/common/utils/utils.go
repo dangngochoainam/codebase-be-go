@@ -4,6 +4,10 @@ import (
 	"errors"
 	"example/internal/common/helper/loghelper"
 	"golang.org/x/crypto/bcrypt"
+	"io"
+	"mime/multipart"
+	"os"
+	"path/filepath"
 )
 
 func HashPassword(password string) (string, error) {
@@ -22,4 +26,25 @@ func VerifyPassword(rawPassword string, hashPassword string) error {
 		return errors.New("Password not found!!")
 	}
 	return nil
+}
+
+func SaveUploadedFile(file *multipart.FileHeader, dst string) error {
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	if err = os.MkdirAll(filepath.Dir(dst), 0750); err != nil {
+		return err
+	}
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, src)
+	return err
 }

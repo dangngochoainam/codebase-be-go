@@ -42,11 +42,13 @@ const (
 	UserRepositoryDIName           string = "UserRepository"
 	ProductRepositoryDIName        string = "ProductRepository"
 	UserUseCaseDIName              string = "UserUseCase"
+	UploadFileDIName               string = "UploadFile"
 	ExampleUseCaseDIName           string = "ExampleUseCase"
 	AuthenticationUseCaseDIName    string = "AuthenticationUseCase"
 	UserControllerDIName           string = "UserController"
 	ExampleControllerDIName        string = "ExampleController"
 	AuthenticationControllerDIName string = "AuthenticationController"
+	UploadFileControllerDIName     string = "UploadFileController"
 	MiddlewareDIName               string = "Middleware"
 )
 
@@ -320,6 +322,15 @@ func initBuilder() {
 			Close: func(obj interface{}) error {
 				return nil
 			},
+		}, di.Def{
+			Name:  UploadFileDIName,
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				return usecase.NewUploadFile(), nil
+			},
+			Close: func(obj interface{}) error {
+				return nil
+			},
 		})
 		return arr
 	}
@@ -357,6 +368,16 @@ func initBuilder() {
 				redisSession := ctn.Get(RedisSessionHelperDIName).(redishelper.RedisSessionHelper)
 				jwtHelper := ctn.Get(JwtHelperDIName).(jwthelper.JwtHelper)
 				return controller.NewAuthenticationController(authenticationUseCase, redisSession, jwtHelper), nil
+			},
+			Close: func(obj interface{}) error {
+				return nil
+			},
+		}, di.Def{
+			Name:  UploadFileControllerDIName,
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				uploadFile := ctn.Get(UploadFileDIName).(usecase.UploadFile)
+				return controller.NewUploadFileController(uploadFile), nil
 			},
 			Close: func(obj interface{}) error {
 				return nil

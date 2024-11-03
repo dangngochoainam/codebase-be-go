@@ -1,21 +1,27 @@
 package middleware
 
 import (
+	"bytes"
+	"encoding/json"
 	"example/internal/common/helper/commonhelper"
 	"example/internal/common/helper/jwthelper"
 	"example/internal/common/helper/loghelper"
 	"example/internal/common/helper/redishelper"
+	"example/internal/common/helper/responsehelper"
 	"example/internal/dto"
 	"example/internal/repository"
-	"time"
-
 	"github.com/google/uuid"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type (
 	Middleware interface {
+		GetBodyDataInMiddleware(appC responsehelper.Gin, req any) error
 		SetTimeMsMiddleware() gin.HandlerFunc
 		SetTraceIdMiddleware() gin.HandlerFunc
 		ValidateRequestMiddleware(obj any) gin.HandlerFunc
@@ -38,10 +44,41 @@ func NewMiddleware(jwtHelper jwthelper.JwtHelper, redisSession redishelper.Redis
 	}
 }
 
+func (m *middleware) GetBodyDataInMiddleware(appC responsehelper.Gin, req any) error {
+	var bodyBuffer bytes.Buffer
+	reader := io.TeeReader(appC.C.Request.Body, &bodyBuffer)
+
+	// Read the body in the middleware
+	bodyBytes, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return err
+	}
+
+	// Parse JSON into req
+	err = json.Unmarshal(bodyBytes, &req)
+	if err != nil {
+		loghelper.Logger.Errorf("Got error while parsing body request, err: %v", err)
+	}
+	// Reset the request body so it can be read again in the controller
+	appC.C.Request.Body = ioutil.NopCloser(&bodyBuffer)
+
+	return nil
+}
+
 func (m *middleware) SetTraceIdMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		appC := responsehelper.Gin{
+			C: c,
+		}
 		req := &dto.BaseRequestDTO{}
-		_ = c.ShouldBindBodyWithJSON(req)
+
+		err := m.GetBodyDataInMiddleware(appC, req)
+		if err != nil {
+			loghelper.Logger.Errorf("Got error while getting body request, err: %v", err)
+			appC.Response(http.StatusBadRequest, responsehelper.INVALID_PARAMS, nil)
+			appC.C.Abort()
+			return
+		}
 
 		if req.TraceId == "" {
 			req.TraceId = uuid.New().String()
