@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"example/internal/common/helper/fetchhelper"
 	"example/internal/common/helper/jwthelper"
 	"example/internal/common/helper/loghelper"
 	"example/internal/common/helper/redishelper"
@@ -17,6 +18,7 @@ import (
 type (
 	ExampleController interface {
 		JwtTest(ctx *gin.Context)
+		FetchClientGet(ctx *gin.Context)
 		JwtVerifyTest(ctx *gin.Context)
 		GoroutineTest(ctx *gin.Context)
 		RedisTest(ctx *gin.Context)
@@ -28,15 +30,31 @@ type (
 		exampleUseCase usecase.ExampleUseCase
 		redisSession   redishelper.RedisSessionHelper
 		jwtHelper      jwthelper.JwtHelper
+		fetchClient    fetchhelper.FetchClient
 	}
 )
 
-func NewExampleController(exampleUseCase usecase.ExampleUseCase, redisSession redishelper.RedisSessionHelper, jwtHelper jwthelper.JwtHelper) ExampleController {
+func NewExampleController(exampleUseCase usecase.ExampleUseCase, redisSession redishelper.RedisSessionHelper, jwtHelper jwthelper.JwtHelper, fetchClient fetchhelper.FetchClient) ExampleController {
 	return &exampleController{
 		exampleUseCase: exampleUseCase,
 		redisSession:   redisSession,
 		jwtHelper:      jwtHelper,
+		fetchClient:    fetchClient,
 	}
+}
+
+func (u *exampleController) FetchClientGet(ctx *gin.Context) {
+	appC := responsehelper.Gin{
+		C: ctx,
+	}
+	var data any
+	err := u.fetchClient.Get("", data, data)
+	if err != nil {
+		loghelper.Logger.Error("Got error while fetch, err: %v", err)
+		appC.Response(http.StatusBadRequest, responsehelper.ERROR, nil)
+		return
+	}
+	appC.Response(http.StatusOK, responsehelper.SUCCESS, nil)
 }
 
 func (u *exampleController) RedisTest(ctx *gin.Context) {
