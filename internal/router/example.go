@@ -13,6 +13,7 @@ func registerExampleRouter(router *gin.RouterGroup, middleware middleware.Middle
 	exampleController := diregistry.GetDependency(diregistry.ExampleControllerDIName).(controller.ExampleController)
 
 	router.GET("/redis-test", exampleController.RedisTest)
+	router.GET("/fetch-test", exampleController.FetchClientGet)
 	router.GET("/jwt-test", exampleController.JwtTest)
 	router.POST("/jwt-test", exampleController.JwtVerifyTest)
 	router.GET("/goroutine-test", exampleController.GoroutineTest)
