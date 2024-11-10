@@ -23,7 +23,7 @@ database_postgres:
   logging_enabled: true
   use_logging_db: false
   use_logging_file: false
-  auto_migration: true
+  auto_migration: false
   max_open_conns: 10
 database_log:
   host: 0.0.0.0
