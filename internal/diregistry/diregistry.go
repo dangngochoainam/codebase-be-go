@@ -103,6 +103,7 @@ func initBuilder() {
 					fetchClientOptions := &fetchhelper.ClientOptions{
 						HttpClient: http.DefaultClient,
 						BaseURL:    "http://localhost:9009/api/v1",
+						//BaseURL: "http://backend-node:9009/api/v1", // call service in docker, the same network
 					}
 					fetchClient := fetchhelper.NewFetchClient(fetchClientOptions)
 					return fetchClient, nil

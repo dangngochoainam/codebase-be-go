@@ -1,0 +1,63 @@
+version: "3.5"
+services:
+  backend-go:
+    container_name: backend-go
+    build:
+      context: .
+      dockerfile: .docker/dev.Dockerfile
+    ports:
+      - 9999:9999
+    environment:
+      HTTP_ADDRESS: 9999
+      DATABASE_POSTGRES__HOST: postgres
+      DATABASE_POSTGRES__PORT: 5432
+      DATABASE_POSTGRES__USERNAME: postgres
+      DATABASE_POSTGRES__PASSWORD: postgres
+      DATABASE_LOG__HOST: postgres
+      DATABASE_LOG__PORT: 5432
+      DATABASE_LOG__USERNAME: postgres
+      DATABASE_LOG__PASSWORD: postgres
+      REDIS_CLIENT__HOST: redis
+      REDIS_CLIENT__PORT: 6379
+    networks:
+      - docker_stack
+
+#    depends_on:
+#      - postgres
+#      - redis
+
+#  postgres:
+#    #    container_name: postgres
+#    image: postgres:15
+#    environment:
+#      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+#      POSTGRES_PASSWORD: ${POSTGRES__PASSWORD:-postgres}
+#      TZ: "UTC"
+#    #      PGTZ: "UTC"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    ports:
+#      - "5434:5432"
+#    networks:
+#      - docker_stack
+#    restart: unless-stopped
+#
+#  redis:
+#    #    container_name: redis
+#    image: redis:7.2
+#    restart: unless-stopped
+#    ports:
+#      - '6379:6379'
+#    command: redis-server --save 60 1 --loglevel warning --requirepass Abc12345
+#    volumes:
+#      - redis_data:/var/lib/redis/data
+#    networks:
+#      - docker_stack
+#
+#networks:
+#  docker_stack:
+#    external: true
+#
+#volumes:
+#  postgres_data:
+#  redis_data:
