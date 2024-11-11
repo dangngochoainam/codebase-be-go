@@ -4,19 +4,19 @@ services:
     container_name: backend-go
     build:
       context: .
-      dockerfile: .docker/dev.Dockerfile
+      dockerfile: docker/dev.Dockerfile
     ports:
       - 9999:9999
     environment:
       HTTP_ADDRESS: 9999
       DATABASE_POSTGRES__HOST: postgres
       DATABASE_POSTGRES__PORT: 5432
-      DATABASE_POSTGRES__USERNAME: postgres
-      DATABASE_POSTGRES__PASSWORD: postgres
+      DATABASE_POSTGRES__USERNAME: root
+      DATABASE_POSTGRES__PASSWORD: Abc12345
       DATABASE_LOG__HOST: postgres
       DATABASE_LOG__PORT: 5432
-      DATABASE_LOG__USERNAME: postgres
-      DATABASE_LOG__PASSWORD: postgres
+      DATABASE_LOG__USERNAME: root
+      DATABASE_LOG__PASSWORD: Abc12345
       REDIS_CLIENT__HOST: redis
       REDIS_CLIENT__PORT: 6379
     networks:
@@ -54,9 +54,9 @@ services:
 #    networks:
 #      - docker_stack
 #
-#networks:
-#  docker_stack:
-#    external: true
+networks:
+  docker_stack:
+    external: true
 #
 #volumes:
 #  postgres_data:
