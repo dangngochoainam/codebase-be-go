@@ -1,0 +1,24 @@
+version: '3'
+
+tasks:
+  mod:
+    desc: "sync package"
+    cmds:
+      - go mod tidy
+      - go mod vendor
+
+  run:
+    desc: "run server"
+    cmds:
+      - go run cmd/server/main.go
+    env:
+      HTTP_ADDRESS: 9999
+
+  test:
+    go test ./...
+
+  build:
+    desc: "build the compiled binary"
+    cmds:
+      - go build -o cmd/server/myapp cmd/server/main.go
+    deps: [ mod ]
