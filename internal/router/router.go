@@ -28,6 +28,7 @@ func InitRouter(middleware middleware.Middleware) *gin.Engine {
 	registerUploadFileRouter(apiV1.Group("/upload-file"), middleware)
 	registerAuthenticationRouter(apiV1.Group("/auth"), middleware)
 	registerUserRouter(apiV1.Group("/users"), middleware)
+	registerAccountRouter(apiV1.Group("/accounts"), middleware)
 	registerExampleRouter(apiV1.Group("/example"), middleware)
 
 	return router

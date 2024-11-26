@@ -44,11 +44,14 @@ const (
 	LogsFileWriterHelperDIName     string = "LogsFileWriterHelper"
 	UserRepositoryDIName           string = "UserRepository"
 	ProductRepositoryDIName        string = "ProductRepository"
+	AccountRepositoryDIName        string = "AccountRepository"
 	UserUseCaseDIName              string = "UserUseCase"
+	AccountUseCaseDIName           string = "AccountUseCase"
 	UploadFileDIName               string = "UploadFile"
 	ExampleUseCaseDIName           string = "ExampleUseCase"
 	AuthenticationUseCaseDIName    string = "AuthenticationUseCase"
 	UserControllerDIName           string = "UserController"
+	AccountControllerDIName        string = "AccountController"
 	ExampleControllerDIName        string = "ExampleController"
 	AuthenticationControllerDIName string = "AuthenticationController"
 	UploadFileControllerDIName     string = "UploadFileController"
@@ -298,6 +301,16 @@ func initBuilder() {
 			Close: func(obj interface{}) error {
 				return nil
 			},
+		}, di.Def{
+			Name:  AccountRepositoryDIName,
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				postgresOrmDb := ctn.Get(SqlGormPostgresHelperDIName).(sqlormhelper.SqlGormDatabase)
+				return repository.NewAccountRepository(postgresOrmDb), nil
+			},
+			Close: func(obj interface{}) error {
+				return nil
+			},
 		})
 		return arr
 	}
@@ -311,6 +324,17 @@ func initBuilder() {
 				userRepository := ctn.Get(UserRepositoryDIName).(repository.UserRepository)
 				modelConverter := ctn.Get(ModelConverterDIName).(copyhepler.ModelConverter)
 				return usecase.NewUserUseCase(userRepository, modelConverter), nil
+			},
+			Close: func(obj interface{}) error {
+				return nil
+			},
+		}, di.Def{
+			Name:  AccountUseCaseDIName,
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				accountRepository := ctn.Get(AccountRepositoryDIName).(repository.AccountRepository)
+				modelConverter := ctn.Get(ModelConverterDIName).(copyhepler.ModelConverter)
+				return usecase.NewAccountUseCase(accountRepository, modelConverter), nil
 			},
 			Close: func(obj interface{}) error {
 				return nil
@@ -361,6 +385,17 @@ func initBuilder() {
 				userUseCase := ctn.Get(UserUseCaseDIName).(usecase.UserUseCase)
 				modelConverter := ctn.Get(ModelConverterDIName).(copyhepler.ModelConverter)
 				return controller.NewUserController(userUseCase, modelConverter), nil
+			},
+			Close: func(obj interface{}) error {
+				return nil
+			},
+		}, di.Def{
+			Name:  AccountControllerDIName,
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				accountUseCase := ctn.Get(AccountUseCaseDIName).(usecase.AccountUseCase)
+				modelConverter := ctn.Get(ModelConverterDIName).(copyhepler.ModelConverter)
+				return controller.NewAccountController(accountUseCase, modelConverter), nil
 			},
 			Close: func(obj interface{}) error {
 				return nil
