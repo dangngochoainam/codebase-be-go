@@ -96,6 +96,7 @@ func autoMigrationLog(db *gorm.DB) error {
 func autoMigrationPostgres(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&entity.Product{},
+		&entity.Account{},
 		&entity.User{})
 	if err != nil {
 		return err
